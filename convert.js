@@ -1,6 +1,6 @@
 //=========CONFIG=========
 var dbName = "oapNepal";
-
+var logFile = "convertLog.log";
 
 //=========LIB=========
 var fs = require('fs');
