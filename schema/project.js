@@ -20,7 +20,16 @@ makeSchema = function(mongoose) {
         totalDisbursement: Number,
         dataSource: {
             name: String,
-            document: { type: mongoose.Schema.Types.ObjectId, ref: 'Person' }
-        }
+            document: {type: mongoose.Schema.Types.ObjectId, ref: 'Person' }
+        },
+        procurementRecord: [{type: mongoose.Schema.Types.ObjectId, ref: 'ProcurementRecord'}],
+        indicator: [{type: mongoose.Schema.Types.ObjectId, ref: 'Indicator'}],
+        location: [{ 
+            location: {type: mongoose.Schema.Types.ObjectId, ref: 'Location'},
+            geocoding: {
+                precision: String
+            }
+        }]
+        
     };
 };

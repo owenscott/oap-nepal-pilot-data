@@ -38,7 +38,7 @@ async.series([
         
         async.forEach(schemaPaths,function(path,callback) {
             require('./schema/'+path+'.js');
-            schema[path] = makeSchema(mongoose);
+            schema[path ] = makeSchema(mongoose);
             callback()
         },
             function() {
