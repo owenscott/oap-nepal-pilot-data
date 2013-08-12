@@ -31,7 +31,7 @@ var db = mongoose.connection;
 db.on('error',console.error.bind(console,'connectionerror: '));
 
 
-
+console.log(mongoose.objectId);
 
 //=========CODE=========
 var schema = {};
@@ -47,7 +47,7 @@ async.series([
         async.forEach(schemaPaths,function(path,callback) {
             require('./schema/'+path+'.js');
             schema[path] = makeSchema(mongoose);
-            fs.readFile('./mapping/'+path+'.js',function(err,data) {
+            fs.readFile('./mapping/'+path+'.json',function(err,data) {
                 if (err) {
                     logger.error(err);
                     return callback();
@@ -84,19 +84,67 @@ async.series([
     },
     //---write data to db---
     function(callback) {
-        mapDataToMongo(csvData,null,schema,callback);
+        mapDataToMongo(csvData,mapping,schema,callback);
     }],
     function(err) {
         if (err) return logger.error(err);
         logger.info('All done.');
-        return db.close();
     }
 );
 
 
 
 function mapDataToMongo(csvData,mapping,schema,callback) {
-    return callback();
+    //mongoose objects
+    var models = {};
+    for (s in schema) {
+        models[s] = mongoose.model(s,schema[s]);
+    }
     
+    //iterate through all projects
+    var projects = csvData['project-details.csv']
+
+    for (p in projects) {
+        var project = new models.project;
+        for (m in mapping.project) {
+             project = mapJsonValues({
+                sourceObject:projects[p],
+                sourceNodeMapping: mapping.project[m].sourceNode.slice(),
+                destObject: project,
+                destNodeMapping: mapping.project[m].destNode.slice(),
+                preprocess: preprocess
+             })
+             project.save(function(err) {
+                 if(err) logger.warn('Unable to save model. ' + err, {err:err});
+             });
+        }
+    }
+        
+    
+    return callback();
 }
 
+function preprocess (nodeMapping,value) {
+    //if (JSON.stringify(nodeMapping) == JSON.stringify(["projectDatabaseId"])) {
+    //    return mongoose.Schema.Types.ObjectId.parseFromString( (value || '').replace(/\s+/g, ''));
+    //}
+}
+
+/*
+for (m in mapping) {
+            mongooseObject = mapJsonValues({
+                sourceObject:settings.sourceObject,
+                sourceNodeMapping:mapping[m].sourceNode.slice(),
+                destObject:mongooseObject,
+                destNodeMapping:mapping[m].destNode.slice(),
+                preprocess:settings.preprocess
+            });
+        }
+        mongooseObject.activityRef = settings.activityRef;
+        mongooseObject.save(function(err) {
+            if (err) logger.warn('Unable to save model.', {error:err});
+            return callback();
+        });
+    }
+
+*/

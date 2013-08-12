@@ -9,30 +9,32 @@ makeSchema = function(mongoose) {
         owner: String
     });
     
-    var Sector = mongoose.Schema({
-        code: String,
-        vocab: String,
-        name: String
-    });
+
                                  
     var GeocodedLocation = mongoose.Schema({
         location: {type: mongoose.Schema.Types.ObjectId, ref: 'Location'},
         geocoding: {
             precision: String
         }
-    });                        
+    });
+    
+    var DevelopmentPartner = mongoose.Schema({
+        name: String,
+        ref: String
+    });
                                  
     var Project = mongoose.Schema({
-        projectId: [ProjectId],
+        projectId: Array,
         title: String,
-        sector: [Sector],
+        sector: Array,
         description: String,
+        developmentPartner: Array,
         partnerMinistry: String,
         partnerDepartment: String,
         startDate: Date,
         endDate: Date,
-        totalCommitment: Number,
-        totalDisbursement: Number,
+        totalCommitmentUsd: Number,
+        totalDisbursementUsd: Number,
         dataSource: {
             name: String,
             document: {type: mongoose.Schema.Types.ObjectId, ref: 'Person' }
@@ -41,6 +43,12 @@ makeSchema = function(mongoose) {
         indicator: [],
         location: [GeocodedLocation]
     });
+    
+    Project.methods.getDonorId = function(callback) {
+        console.log('method');
+    }
+    
+    
         
     return Project; 
 };
