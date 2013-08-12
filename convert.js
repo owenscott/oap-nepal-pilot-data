@@ -10,7 +10,6 @@ var async = require('async');
 var request = require('request');
 var winston = require('winston');
 var mongoose = require('mongoose');
-var csv = require('csv');
 
 //configure logger
 var logger = new (winston.Logger)({
@@ -24,6 +23,8 @@ var logger = new (winston.Logger)({
     ]
 });
 
+require('./scripts/tools.js');
+
 //=========DB CONNECT=========
 mongoose.connect('mongodb://localhost/' + dbName);
 var db = mongoose.connection;
@@ -34,8 +35,11 @@ db.on('error',console.error.bind(console,'connectionerror: '));
 
 //=========CODE=========
 var schema = {};
+var mapping = {};
+var csvData = {};
+
 async.series([
-    //---load schemas---
+    //---load schemas and mapping---
     function(callback) {
         var schemaPaths = getSchemaPaths();
         logger.info('Loading schema...');
@@ -43,7 +47,15 @@ async.series([
         async.forEach(schemaPaths,function(path,callback) {
             require('./schema/'+path+'.js');
             schema[path] = makeSchema(mongoose);
-            return callback();
+            fs.readFile('./mapping/'+path+'.js',function(err,data) {
+                if (err) {
+                    logger.error(err);
+                    return callback();
+                }
+                mapping[path] = JSON.parse(data);
+                return callback();
+            });
+                
         },
         function() {
             logger.info('Done loading schema.');
@@ -55,7 +67,7 @@ async.series([
         logger.info('Loading CSVs...');
         //template paths
         var templatePaths = getTemplatePaths();
-        var csvData = {};
+        
         //hander for csv data
         handleCsv = function (data,path,callback) {
             csvData[path] = data;
@@ -72,8 +84,7 @@ async.series([
     },
     //---write data to db---
     function(callback) {
-        logger.info('Writing data to db...');
-        return callback();
+        mapDataToMongo(csvData,null,schema,callback);
     }],
     function(err) {
         if (err) return logger.error(err);
@@ -84,32 +95,8 @@ async.series([
 
 
 
-function readCsvToJson(csvPath,handleData,callback) {
-    var completePath = './data/' + csvPath;
-    fs.readFile(completePath, function(err,data) {
-        if (err) return callback(err);
-        csv()
-            .from.string(data)
-            .to.array(function(data){
-                var jsonArray = [];
-                var jsonTemplate = {};
-                for (d in data) {
-                    if (d == 0) {
-                         for (k in data[0]) {
-                             jsonTemplate[data[0][k]] = ""
-                         }
-                    } 
-                    else {
-                        var l = 0;
-                        for (k in jsonTemplate) {
-                            jsonTemplate[k] = data[d][l];
-                            jsonArray.push(jsonTemplate);
-                            l++;
-                        }
-                    }
-                }
-                handleData(jsonArray,csvPath,callback);
-        });
-        
-    });   
+function mapDataToMongo(csvData,mapping,schema,callback) {
+    return callback();
+    
 }
+

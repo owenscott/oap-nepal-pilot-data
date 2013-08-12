@@ -15,7 +15,7 @@ makeSchema = function(mongoose) {
         name: String
     });
                                  
-    var Location = mongoose.Schema({
+    var GeocodedLocation = mongoose.Schema({
         location: {type: mongoose.Schema.Types.ObjectId, ref: 'Location'},
         geocoding: {
             precision: String
@@ -39,7 +39,7 @@ makeSchema = function(mongoose) {
         },
         procurementRecord: [],
         indicator: [],
-        location: [Location]
+        location: [GeocodedLocation]
     });
         
     return Project; 
