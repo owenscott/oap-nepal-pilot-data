@@ -1,6 +1,6 @@
 var fs = require('fs');
 var async = require('async');
-require('./../global/templatePaths.js'); //brings in getTemplatePaths() which returns paths to all templates
+require('./../global/globals.js'); //brings in getTemplatePaths() which returns paths to all templates
 
 var paths = getTemplatePaths();
 
@@ -10,7 +10,7 @@ async.forEach(paths, function(path, callback) {
         return callback();
     },
     function(err) {
-        if(err) console.log();
+        if(err) console.log('Error: ' + err);
         console.log('All done.');
     }
 ); 

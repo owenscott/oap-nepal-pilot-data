@@ -1,16 +1,31 @@
+//DONE
+
 makeSchema = function(mongoose) {
-    return {
-        projectId: [{
-            type: String,
-            value: String,
-            owner: String
-        }],
+    
+    
+    var ProjectId = mongoose.Schema({
+        type: String,
+        value: String,
+        owner: String
+    });
+    
+    var Sector = mongoose.Schema({
+        code: String,
+        vocab: String,
+        name: String
+    });
+                                 
+    var Location = mongoose.Schema({
+        location: {type: mongoose.Schema.Types.ObjectId, ref: 'Location'},
+        geocoding: {
+            precision: String
+        }
+    });                        
+                                 
+    var Project = mongoose.Schema({
+        projectId: [ProjectId],
         title: String,
-        sector: [{
-            code: String,
-            vocab: String,
-            name: String
-        }],
+        sector: [Sector],
         description: String,
         partnerMinistry: String,
         partnerDepartment: String,
@@ -22,14 +37,10 @@ makeSchema = function(mongoose) {
             name: String,
             document: {type: mongoose.Schema.Types.ObjectId, ref: 'Person' }
         },
-        procurementRecord: [{type: mongoose.Schema.Types.ObjectId, ref: 'ProcurementRecord'}],
-        indicator: [{type: mongoose.Schema.Types.ObjectId, ref: 'Indicator'}],
-        location: [{ 
-            location: {type: mongoose.Schema.Types.ObjectId, ref: 'Location'},
-            geocoding: {
-                precision: String
-            }
-        }]
+        procurementRecord: [],
+        indicator: [],
+        location: [Location]
+    });
         
-    };
+    return Project; 
 };

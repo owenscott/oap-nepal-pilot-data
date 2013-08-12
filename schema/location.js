@@ -1,7 +1,8 @@
 makeSchema = function(mongoose) {
-    return {
-        type: "Feature",
-        geometry: {"type": "Point", "coordinates": []},
+    
+    var Location = mongoose.Schema({
+        locationType: String,
+        geometry: {"type": String, "coordinates": []},
         properties: {
             geonameId: String,
             geoname: String,
@@ -10,5 +11,8 @@ makeSchema = function(mongoose) {
             adm2: String,
             adm2Id: String
         }
-    };
+    });
+    
+    return Location;
+    
 };

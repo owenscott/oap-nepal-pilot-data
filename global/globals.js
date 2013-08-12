@@ -1,5 +1,5 @@
 getTemplatePaths = function () {
-    return ['location-geocoding.csv'];
+    return ['geocoding-location.csv','project-details.csv'];
 }
 
 getDbName = function() {
