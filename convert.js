@@ -84,8 +84,15 @@ async.series([
     },
     //---write data to db---
     function(callback) {
+        logger.info('Parsing data and writing to db...');
         mapDataToMongo(csvData,mapping,schema,callback);
-    }],
+    },
+    //---clean data in db---
+    function(callback) {
+        return callback();
+    }
+    
+    ],
     function(err) {
         if (err) return logger.error(err);
         logger.info('All done.');
@@ -104,47 +111,119 @@ function mapDataToMongo(csvData,mapping,schema,callback) {
     //iterate through all projects
     var projects = csvData['project-details.csv']
 
-    for (p in projects) {
-        var project = new models.project;
+    async.forEach(projects, function(project,callback) {
+        var projectJson = new models.project;
         for (m in mapping.project) {
-             project = mapJsonValues({
-                sourceObject:projects[p],
+             projectJson = mapJsonValues({
+                sourceObject:project,
                 sourceNodeMapping: mapping.project[m].sourceNode.slice(),
-                destObject: project,
+                destObject: projectJson,
                 destNodeMapping: mapping.project[m].destNode.slice(),
                 preprocess: preprocess
              })
-             project.save(function(err) {
-                 if(err) logger.warn('Unable to save model. ' + err, {err:err});
-             });
+        }
+        projectJson = postProcessProject(projectJson);
+         projectJson.save(function(err) {
+             if(err) logger.warn('Unable to save model. ' + err, {err:err});
+             return callback()
+         });
+    },
+    function() {
+        logger.info('Done parsing projects.');
+        return callback();
+    })
+}
+
+
+
+
+
+
+
+function postProcessProject(project) {
+    //sector vocabularies
+    var settings = [
+        //internal database ID
+        {obj:project,nodeMapping:["projectId",0,"ownerName"],value:"Development Gateway"},
+        {obj:project,nodeMapping:["projectId",0,"type"],value:"InternalManagement"},
+        {obj:project,nodeMapping:["projectId",0,"ownerOrgIatiRef"],value:"21006"},
+        //donor ID
+        {obj:project,nodeMapping:["projectId",1,"type"],value:"DevelopmentPartner"},
+        //aid management platform
+        {obj:project,nodeMapping:["projectId",2,"ownerName"],value:"Nepal Ministry of Finance"},
+        {obj:project,nodeMapping:["projectId",2,"type"],value:"CountryAIMS"},
+        //research database
+        {obj:project,nodeMapping:["projectId",3,"ownerName"],value:"Development Gateway"},
+        {obj:project,nodeMapping:["projectId",3,"ownerOrgIatiRef"],value:"21006"},
+        {obj:project,nodeMapping:["projectId",3,"type"],value:"InternalDatabase"},
+        //sector
+        {obj:project,nodeMapping:["sector",0,"vocab"],value:"ResearchProjectInternal"},
+        {obj:project,nodeMapping:["sector",1,"vocab"],value:"AidManagementPlatform"}
+    ]
+    
+    
+    //development partner id ownership
+    if (project.projectId[1] && project.projectId[1].id) {
+        
+        if (project.projectId[1].id[0] == "P") {
+            project.projectId[1].ownerName = "World Bank";
+        }
+        else {
+            project.projectId[1].ownerName = "Asian Development Bank";
+            project.projectId[1].ownerOrgIatiRef = "46004";
         }
     }
         
+    //apply settings
+    for (s in settings) {
+        project = valueToObjectNode(settings[s]);
+    }
     
-    return callback();
+    //clean and replace
+    project = cleanAndReplace(project,['developmentPartner','name'],'Japan','Japan International Cooperation Agency');
+    
+    //reclassify donor organizations
+    project.developmentPartner = reclassifySubObject(project.developmentPartner,'name','ref',[{evalValue:'Japan International Cooperation Agency',replaceValue:'JP-8'}]);
+    
+    
+    //drop empty sectors and project databases
+    //console.log(project.projectId);
+    var p = 0;
+    while (true) {
+        //console.log(p);
+        if (!project.projectId[p]) {
+            break;
+        }
+        if (!project.projectId[p].id) {
+            project.projectId.splice(p,1)
+        }
+        else {
+            p++;
+        }
+    }
+    p = 0;
+    while(true) {
+        if (!project.sector[p]) {
+            break;
+        }
+        if (!project.sector[p].name && !project.sector[p].code) {
+            project.sector.splice(p,1);
+        }
+        else {
+            p++;
+        }
+    }
+    //console.log(project.projectId);
+    
+    return project;
+        
 }
+
+
+
+
+
 
 function preprocess (nodeMapping,value) {
-    //if (JSON.stringify(nodeMapping) == JSON.stringify(["projectDatabaseId"])) {
-    //    return mongoose.Schema.Types.ObjectId.parseFromString( (value || '').replace(/\s+/g, ''));
-    //}
+    return value;
 }
-
-/*
-for (m in mapping) {
-            mongooseObject = mapJsonValues({
-                sourceObject:settings.sourceObject,
-                sourceNodeMapping:mapping[m].sourceNode.slice(),
-                destObject:mongooseObject,
-                destNodeMapping:mapping[m].destNode.slice(),
-                preprocess:settings.preprocess
-            });
-        }
-        mongooseObject.activityRef = settings.activityRef;
-        mongooseObject.save(function(err) {
-            if (err) logger.warn('Unable to save model.', {error:err});
-            return callback();
-        });
-    }
-
-*/

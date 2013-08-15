@@ -18,17 +18,18 @@ makeSchema = function(mongoose) {
         }
     });
     
-    var DevelopmentPartner = mongoose.Schema({
-        name: String,
-        ref: String
-    });
+    
+    
                                  
     var Project = mongoose.Schema({
         projectId: Array,
         title: String,
         sector: Array,
         description: String,
-        developmentPartner: Array,
+        developmentPartner: {
+            name: String,
+            ref: String
+        },
         partnerMinistry: String,
         partnerDepartment: String,
         startDate: Date,

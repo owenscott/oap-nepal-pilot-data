@@ -1,0 +1,54 @@
+
+    [
+        
+        
+        {"sourceNode":[null], "destNode":["projectId",0,"ownerName"]},
+        {"sourceNode":[null], "destNode":["projectId",0,"ownerOrgIatiRef"]},
+        {"sourceNode":[null], "destNode":["projectId",0,"type"]},
+        {"sourceNode":["projectOapId"], "destNode":["projectId",0,"id"]},
+        
+        {"sourceNode":[null], "destNode":["projectId",1,"ownerName"]},
+        {"sourceNode":[null], "destNode":["projectId",1,"ownerOrgIatiRef"]},
+        {"sourceNode":[null], "destNode":["projectId",1,"type"]},
+        {"sourceNode":["projectDonorId"], "destNode":["projectId",1,"id"]},
+
+        {"sourceNode":[null], "destNode":["projectId",2,"ownerName"]},
+        {"sourceNode":[null], "destNode":["projectId",2,"ownerOrgIatiRef"]},
+        {"sourceNode":[null], "destNode":["projectId",2,"type"]},
+        {"sourceNode":["projectAmpId"], "destNode":["projectId",2,"id"]},
+
+        {"sourceNode":[null], "destNode":["projectId",3,"ownerName"]},
+        {"sourceNode":[null], "destNode":["projectId",3,"ownerOrgIatiRef"]},
+        {"sourceNode":[null], "destNode":["projectId",3,"type"]},
+        {"sourceNode":["projectDatabaseId"], "destNode":["projectId",3,"id"]},              
+        
+        {"sourceNode":["projectTitle"], "destNode":["title"]},
+        
+        {"sourceNode":[null], "destNode":["sector",0,"code"]},
+        {"sourceNode":[null], "destNode":["sector",0,"vocab"]},
+        {"sourceNode":["oapSector"], "destNode":["sector",0,"name"]},
+        
+        {"sourceNode":[null], "destNode":["sector",1,"code"]},
+        {"sourceNode":[null], "destNode":["sector",1,"vocab"]},
+        {"sourceNode":["ampSector"], "destNode":["sector",1,"name"]},
+        
+        {"sourceNode":["description"], "destNode":["description"]},
+        
+        {"sourceNode":["donor"], "destNode":["developmentPartner","name"]},
+        {"sourceNode":[null], "destNode":["developmentPartner","ref"]},
+        
+        {"sourceNode":["partnerMinistry"], "destNode":["partnerMinistry"]},        
+        {"sourceNode":["partnerDepartment"], "destNode":["partnerDepartment"]},
+        
+        {"sourceNode":["startDate"], "destNode":["startDate"]},
+        {"sourceNode":["endDate"], "destNode":["endDate"]},
+        
+        {"sourceNode":["totalCommitmentsUsd"], "destNode":["totalCommitmentUsd"]},
+        {"sourceNode":["totalDisbursementsUsd"], "destNode":["totalDisbursementUsd"]},
+        
+        {"sourceNode":["projectInfoSource"], "destNode":["dataSource","name"]},
+        {"sourceNode":[null], "destNode":["dataSource","link"]}
+
+    ]
+
+        
